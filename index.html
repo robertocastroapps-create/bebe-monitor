@@ -639,8 +639,16 @@ body.tema-rosa, body { --blush-dark: var(--ta, #FF6B9D); --lavender-dark: var(--
   <span id="syncTxt">Sincronizado</span>
 </div>
 
+<!-- LOADING enquanto verifica login -->
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:1001;background:linear-gradient(160deg,#FFB3C6 0%,#C9B8FF 50%,#B3D9FF 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <span style="font-size:52px">👶</span>
+  <span style="font-family:Nunito,sans-serif;font-size:20px;font-weight:900;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.15)">Bebê Monitor</span>
+  <div style="width:40px;height:40px;border:4px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite"></div>
+  <span style="font-size:13px;color:rgba(255,255,255,.85);font-weight:600">Verificando login...</span>
+</div>
+
 <!-- LOGIN SCREEN -->
-<div id="loginScreen">
+<div id="loginScreen" style="display:none">
   <div class="login-card">
     <span class="login-logo">👶</span>
     <span class="login-title">Bebê Monitor</span>
@@ -650,11 +658,15 @@ body.tema-rosa, body { --blush-dark: var(--ta, #FF6B9D); --lavender-dark: var(--
       <div class="lf-item"><span class="lfi">👨‍👩‍👧</span><span class="lft">Pai e mãe acessam juntos em tempo real</span></div>
       <div class="lf-item"><span class="lfi">📱</span><span class="lft">Funciona em qualquer celular</span></div>
     </div>
-    <button class="btn-google" onclick="loginGoogle()">
+    <button class="btn-google" id="btnLoginGoogle" onclick="loginGoogle()">
       <img src="https://www.google.com/favicon.ico" alt="Google"/>
       Entrar com Google
     </button>
+    <div style="font-size:11px;color:#FF9800;font-weight:700;margin-bottom:8px;display:none" id="popupDica">
+      💡 Se não abrir, verifique se popups estão liberados no seu navegador
+    </div>
     <div class="login-footer">Seus dados são privados e seguros.<br>Cada família acessa apenas seus próprios registros.</div>
+    <div style="margin-top:10px;font-size:10px;color:#C0C0C0;font-weight:700">v1.3 — build 2024-06-13</div>
   </div>
 </div>
 
@@ -1908,7 +1920,7 @@ init();
 <!-- FIREBASE SDK -->
 <script type="module">
 import { initializeApp }                          from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged }
                                                   from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, deleteDoc, serverTimestamp }
                                                   from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -1921,10 +1933,16 @@ const firebaseConfig = {
   messagingSenderId: "677508414893",
   appId:             "1:677508414893:web:78e30458c15f6b6c26f6b7"
 };
+// v1.3
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
+
+// Manter login salvo localmente
+import("https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js").then(({browserLocalPersistence, setPersistence}) => {
+  setPersistence(auth, browserLocalPersistence).catch(e => console.log('Persistence:', e));
+});
 
 // ── ESTADO FIREBASE ──────────────────────────────────────────────
 let currentUser = null;
@@ -1932,12 +1950,39 @@ let unsubR1 = null, unsubR2 = null;
 
 // ── LOGIN GOOGLE ─────────────────────────────────────────────────
 window.loginGoogle = async function() {
+  const btn = document.getElementById('btnLoginGoogle');
+  if(btn) { btn.innerHTML = '⏳ Abrindo Google...'; btn.disabled = true; }
+  
+  const provider = new GoogleAuthProvider();
+  provider.addScope('email');
+  provider.addScope('profile');
+  provider.setCustomParameters({ prompt: 'select_account' });
+
+  // Tenta popup primeiro (funciona em alguns browsers)
+  // Se falhar, usa redirect
   try {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
-  } catch(e) {
-    console.error('Login erro:', e);
-    showToastFb('❌ Erro no login. Tente novamente.');
+    const result = await signInWithPopup(auth, provider);
+    console.log('Popup OK:', result.user.email);
+  } catch(popupErr) {
+    console.log('Popup falhou:', popupErr.code, '— tentando redirect');
+    if(popupErr.code === 'auth/popup-blocked' || 
+       popupErr.code === 'auth/popup-closed-by-user' ||
+       popupErr.code === 'auth/cancelled-popup-request' ||
+       popupErr.code === 'auth/internal-error' ||
+       popupErr.code === 'auth/operation-not-supported-in-this-environment') {
+      try {
+        await signInWithRedirect(auth, provider);
+      } catch(redirErr) {
+        console.error('Redirect também falhou:', redirErr);
+        if(btn) { btn.innerHTML = '<img src="https://www.google.com/favicon.ico" style="width:22px;height:22px"/> Entrar com Google'; btn.disabled = false; }
+        showToastFb('❌ Erro no login: ' + redirErr.code);
+      }
+    } else {
+      if(btn) { btn.innerHTML = '<img src="https://www.google.com/favicon.ico" style="width:22px;height:22px"/> Entrar com Google'; btn.disabled = false; }
+      if(popupErr.code !== 'auth/cancelled-popup-request') {
+        showToastFb('❌ ' + popupErr.code);
+      }
+    }
   }
 };
 
@@ -1950,9 +1995,38 @@ window.logoutFb = async function() {
 };
 
 // ── AUTH STATE ───────────────────────────────────────────────────
+// Mostrar dica de popup após tentativa
+window._showPopupDica = function() {
+  const d = document.getElementById('popupDica');
+  if(d) d.style.display = 'block';
+};
+
+// Captura resultado do redirect ao voltar do Google
+getRedirectResult(auth).then(result => {
+  if(result?.user) {
+    console.log('Redirect login OK:', result.user.email);
+    // onAuthStateChanged vai cuidar do resto
+  }
+}).catch(e => {
+  if(e.code && e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect erro:', e.code);
+    // Mostrar erro apenas se não for "sem usuário"
+    const ls = document.getElementById('loginScreen');
+    if(ls && ls.style.display !== 'none') {
+      const btn = document.getElementById('btnLoginGoogle');
+      if(btn) { btn.innerHTML = '<img src="https://www.google.com/favicon.ico" style="width:22px;height:22px"/> Entrar com Google'; btn.disabled = false; }
+    }
+  }
+});
+
 onAuthStateChanged(auth, async (user) => {
+  // Esconder loading sempre
+  const loading = document.getElementById('loadingScreen');
+  if(loading) loading.style.display = 'none';
+
   if(user) {
     currentUser = user;
+    document.getElementById('loginScreen').style.display = 'none';
     await migrateLocalStorage(user.uid);
     await checkFamilia(user);
   } else {
