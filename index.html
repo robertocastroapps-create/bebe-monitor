@@ -541,6 +541,94 @@ body.tema-rosa, body { --blush-dark: var(--ta, #FF6B9D); --lavender-dark: var(--
   padding:6px; background:rgba(255,255,255,.15);
   font-size:10px; font-weight:700; color:rgba(255,255,255,.9);
 }
+
+/* FAMÍLIA SCREEN */
+#familiaScreen {
+  position:fixed; inset:0; z-index:999;
+  background:linear-gradient(160deg,#FFB3C6 0%,#C9B8FF 50%,#B3D9FF 100%);
+  display:none; align-items:center; justify-content:center;
+  padding:24px;
+}
+#familiaScreen.show { display:flex; }
+.fam-card {
+  background:rgba(255,255,255,.93); border-radius:28px;
+  padding:30px 24px; width:100%; max-width:360px;
+  box-shadow:0 20px 60px rgba(0,0,0,.12); text-align:center;
+}
+.fam-title {
+  font-family:"Nunito",sans-serif; font-size:22px; font-weight:900;
+  display:block; margin-bottom:4px;
+}
+.fam-sub {
+  font-size:12px; color:#6B6B6B; font-weight:600;
+  margin-bottom:22px; display:block; line-height:1.5;
+}
+.fam-user {
+  display:flex; align-items:center; gap:10px;
+  background:#FFF8F0; border-radius:14px; padding:11px 14px;
+  margin-bottom:20px; text-align:left;
+}
+.fam-user img { width:36px; height:36px; border-radius:50%; flex-shrink:0; }
+.fam-user-info strong { font-family:"Nunito",sans-serif; font-size:13px; font-weight:900; display:block; }
+.fam-user-info span { font-size:11px; color:#6B6B6B; font-weight:600; }
+
+.fam-sep { display:flex; align-items:center; gap:10px; margin:18px 0; }
+.fam-sep::before,.fam-sep::after { content:""; flex:1; height:1px; background:#E8E8E8; }
+.fam-sep span { font-size:11px; color:#A0A0A0; font-weight:700; }
+
+.btn-criar-familia {
+  width:100%; padding:14px; border-radius:16px; border:none;
+  background:linear-gradient(135deg,#FF6B9D,#9B84F5);
+  color:#fff; font-family:"Nunito",sans-serif; font-size:15px; font-weight:800;
+  cursor:pointer; touch-action:manipulation; margin-bottom:10px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-criar-familia:active { transform:scale(.97); }
+
+.fam-ou { font-size:12px; color:#A0A0A0; font-weight:700; margin:4px 0 10px; display:block; }
+
+.fam-input-row { display:flex; gap:8px; margin-bottom:8px; }
+.fam-code-input {
+  flex:1; border:2px solid #E8E8E8; border-radius:14px;
+  padding:12px 14px; font-family:"Nunito",sans-serif; font-size:16px;
+  font-weight:900; outline:none; text-align:center; letter-spacing:3px;
+  text-transform:uppercase; background:#FFF8F0; color:#2D2D2D;
+}
+.fam-code-input:focus { border-color:#9B84F5; }
+.btn-entrar-familia {
+  padding:12px 16px; border-radius:14px; border:none;
+  background:linear-gradient(135deg,#6DCFB0,#9B84F5);
+  color:#fff; font-family:"Nunito",sans-serif; font-size:14px; font-weight:800;
+  cursor:pointer; touch-action:manipulation; white-space:nowrap;
+}
+.fam-msg { font-size:12px; font-weight:700; margin-top:6px; min-height:18px; }
+.fam-msg.ok  { color:#4CAF50; }
+.fam-msg.err { color:#F44336; }
+.fam-msg.load{ color:#FF9800; }
+
+/* CÓDIGO DA FAMÍLIA (após criar) */
+.fam-codigo-card {
+  background:linear-gradient(135deg,#FFF0F5,#EDE5FF);
+  border-radius:16px; padding:16px; margin:14px 0; text-align:center;
+}
+.fam-codigo-label { font-size:11px; color:#6B6B6B; font-weight:700; display:block; margin-bottom:6px; }
+.fam-codigo-val {
+  font-family:"Nunito",sans-serif; font-size:28px; font-weight:900;
+  color:#9B84F5; letter-spacing:6px; display:block; margin-bottom:8px;
+}
+.btn-copiar-codigo {
+  background:rgba(155,132,245,.15); border:2px solid #C9B8FF;
+  border-radius:10px; padding:7px 16px; font-family:"Nunito",sans-serif;
+  font-size:12px; font-weight:800; color:#9B84F5; cursor:pointer;
+  touch-action:manipulation;
+}
+.btn-entrar-app {
+  width:100%; padding:14px; border-radius:16px; border:none;
+  background:linear-gradient(135deg,#6DCFB0,#5BAAFF);
+  color:#fff; font-family:"Nunito",sans-serif; font-size:15px; font-weight:800;
+  cursor:pointer; touch-action:manipulation; margin-top:8px;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
 </style>
 </head>
 <body>
@@ -567,6 +655,55 @@ body.tema-rosa, body { --blush-dark: var(--ta, #FF6B9D); --lavender-dark: var(--
       Entrar com Google
     </button>
     <div class="login-footer">Seus dados são privados e seguros.<br>Cada família acessa apenas seus próprios registros.</div>
+  </div>
+</div>
+
+<!-- FAMÍLIA SCREEN -->
+<div id="familiaScreen">
+  <div class="fam-card">
+    <span style="font-size:40px;display:block;margin-bottom:8px">👨‍👩‍👧</span>
+    <span class="fam-title">Configurar Família</span>
+    <span class="fam-sub">Para pai e mãe compartilharem os mesmos dados em tempo real</span>
+
+    <!-- Usuário logado -->
+    <div class="fam-user" id="famUserInfo">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FFB3C6,#C9B8FF);display:flex;align-items:center;justify-content:center;font-size:18px">👤</div>
+      <div class="fam-user-info">
+        <strong id="famUserName">Carregando...</strong>
+        <span id="famUserEmail"></span>
+      </div>
+    </div>
+
+    <!-- Criar família -->
+    <div id="famCriarSection">
+      <button class="btn-criar-familia" onclick="criarFamilia()">
+        👨‍👩‍👧 Criar nova família
+      </button>
+
+      <div class="fam-sep"><span>ou entre em uma família existente</span></div>
+
+      <div class="fam-input-row">
+        <input class="fam-code-input" id="famCodeInput" placeholder="CÓDIGO" maxlength="8" oninput="this.value=this.value.toUpperCase()"/>
+        <button class="btn-entrar-familia" onclick="entrarFamilia()">Entrar</button>
+      </div>
+      <div class="fam-msg" id="famMsg"></div>
+    </div>
+
+    <!-- Após criar — mostrar código -->
+    <div id="famCodigoSection" style="display:none">
+      <div class="fam-codigo-card">
+        <span class="fam-codigo-label">Código da sua família — compartilhe com sua esposa!</span>
+        <span class="fam-codigo-val" id="famCodigoVal"></span>
+        <button class="btn-copiar-codigo" onclick="copiarCodigo()">📋 Copiar código</button>
+      </div>
+      <div style="font-size:11px;color:#6B6B6B;font-weight:600;margin-bottom:8px;line-height:1.5">
+        Sua esposa deve abrir o app, fazer login com o Google dela e digitar esse código para entrar na mesma família. 💛
+      </div>
+      <button class="btn-entrar-app" onclick="entrarApp()">
+        ✅ Entrar no app
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -1816,15 +1953,13 @@ window.logoutFb = async function() {
 onAuthStateChanged(auth, async (user) => {
   if(user) {
     currentUser = user;
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('syncBar').style.display     = 'flex';
-    updUserBadge(user);
     await migrateLocalStorage(user.uid);
-    subscribeData(user.uid);
-    if(typeof updHdr === 'function') updHdr();
+    await checkFamilia(user);
   } else {
     currentUser = null;
+    familyId = null;
     document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('familiaScreen').classList.remove('show');
     document.getElementById('syncBar').style.display     = 'none';
     if(unsubR1) unsubR1();
     if(unsubR2) unsubR2();
@@ -1906,11 +2041,20 @@ async function migrateLocalStorage(uid) {
   }
 }
 
-// ── SUBSCRIBE TEMPO REAL ─────────────────────────────────────────
-function subscribeData(uid) {
-  // Perfil
-  const cfgRef = doc(db,'users',uid,'config','perfil');
+// ── SUBSCRIBE TEMPO REAL (por família) ───────────────────────────
+function subscribeData(fid) {
+  if(unsubR1) unsubR1();
+  if(unsubR2) unsubR2();
+  
+  const basePath = 'familias/' + fid;
+
+  // Perfil (do criador da família)
+  const cfgRef = doc(db, basePath, 'config', 'perfil', 'dados');
   getDoc(cfgRef).then(snap => {
+    // tenta perfil da família, senão usa do usuário
+  });
+  // Perfil pessoal
+  getDoc(doc(db,'users',currentUser.uid,'config','perfil')).then(snap => {
     if(snap.exists()) {
       Object.assign(cfg, snap.data());
       if(typeof updHdr==='function') updHdr();
@@ -1919,8 +2063,8 @@ function subscribeData(uid) {
     }
   });
 
-  // Registros M1
-  unsubR1 = onSnapshot(collection(db,'users',uid,'regs1'), snap => {
+  // Registros M1 da família
+  unsubR1 = onSnapshot(collection(db, basePath, 'regs1'), snap => {
     R1 = snap.docs.map(d => d.data()).sort((a,b) => new Date(b.dt) - new Date(a.dt));
     if(typeof updSm1==='function')  updSm1();
     if(typeof updHome==='function') updHome();
@@ -1929,8 +2073,8 @@ function subscribeData(uid) {
     setSyncing(false);
   });
 
-  // Registros M2
-  unsubR2 = onSnapshot(collection(db,'users',uid,'regs2'), snap => {
+  // Registros M2 da família
+  unsubR2 = onSnapshot(collection(db, basePath, 'regs2'), snap => {
     R2 = snap.docs.map(d => d.data()).sort((a,b) => new Date(b.dt) - new Date(a.dt));
     if(typeof updSm2==='function')     updSm2();
     if(typeof updHome==='function')    updHome();
@@ -1955,6 +2099,142 @@ window._fbSv = async function() {
     document.getElementById('syncTxt').textContent = '⚠️ Erro ao salvar';
   }
 };
+
+
+// ─── FAMÍLIA ─────────────────────────────────────────────────────
+let familyId = null;
+
+async function checkFamilia(user) {
+  // Verificar se usuário já tem família
+  const userRef = doc(db, 'users', user.uid);
+  const userSnap = await getDoc(userRef);
+  
+  if(userSnap.exists() && userSnap.data().familyId) {
+    // Já tem família — entra direto
+    familyId = userSnap.data().familyId;
+    entrarApp();
+  } else {
+    // Não tem família — mostrar tela de configuração
+    mostrarTelaFamilia(user);
+  }
+}
+
+function mostrarTelaFamilia(user) {
+  document.getElementById('familiaScreen').classList.add('show');
+  document.getElementById('famUserName').textContent = user.displayName || 'Usuário';
+  document.getElementById('famUserEmail').textContent = user.email || '';
+  if(user.photoURL) {
+    document.getElementById('famUserInfo').innerHTML = `
+      <img src="${user.photoURL}" alt="foto"/>
+      <div class="fam-user-info">
+        <strong>${user.displayName||'Usuário'}</strong>
+        <span>${user.email||''}</span>
+      </div>`;
+  }
+}
+
+window.criarFamilia = async function() {
+  if(!currentUser) return;
+  setFamMsg('⏳ Criando família...', 'load');
+  try {
+    // Gerar código único de 6 letras
+    const code = Math.random().toString(36).substring(2,8).toUpperCase();
+    const famRef = doc(db, 'familias', code);
+    
+    // Criar família no Firestore
+    await setDoc(famRef, {
+      code,
+      criadoPor: currentUser.uid,
+      criadoEm: serverTimestamp(),
+      membros: [currentUser.uid],
+      nomes: { [currentUser.uid]: currentUser.displayName || 'Pai/Mãe' }
+    });
+    
+    // Vincular usuário à família
+    await setDoc(doc(db, 'users', currentUser.uid), {
+      familyId: code,
+      nome: currentUser.displayName,
+      email: currentUser.email,
+      foto: currentUser.photoURL || ''
+    }, { merge: true });
+    
+    familyId = code;
+    
+    // Mostrar código
+    document.getElementById('famCriarSection').style.display = 'none';
+    document.getElementById('famCodigoSection').style.display = 'block';
+    document.getElementById('famCodigoVal').textContent = code;
+    setFamMsg('✅ Família criada!', 'ok');
+  } catch(e) {
+    console.error(e);
+    setFamMsg('❌ Erro ao criar. Tente novamente.', 'err');
+  }
+};
+
+window.entrarFamilia = async function() {
+  if(!currentUser) return;
+  const code = document.getElementById('famCodeInput').value.trim().toUpperCase();
+  if(code.length < 4) { setFamMsg('❌ Código inválido', 'err'); return; }
+  
+  setFamMsg('⏳ Buscando família...', 'load');
+  try {
+    const famRef = doc(db, 'familias', code);
+    const famSnap = await getDoc(famRef);
+    
+    if(!famSnap.exists()) {
+      setFamMsg('❌ Código não encontrado', 'err'); return;
+    }
+    
+    // Adicionar membro à família
+    const famData = famSnap.data();
+    const membros = famData.membros || [];
+    if(!membros.includes(currentUser.uid)) membros.push(currentUser.uid);
+    
+    await setDoc(famRef, {
+      ...famData,
+      membros,
+      nomes: { ...famData.nomes, [currentUser.uid]: currentUser.displayName || 'Membro' }
+    });
+    
+    // Vincular usuário
+    await setDoc(doc(db, 'users', currentUser.uid), {
+      familyId: code,
+      nome: currentUser.displayName,
+      email: currentUser.email,
+      foto: currentUser.photoURL || ''
+    }, { merge: true });
+    
+    familyId = code;
+    setFamMsg('✅ Entrou na família!', 'ok');
+    setTimeout(() => entrarApp(), 800);
+  } catch(e) {
+    console.error(e);
+    setFamMsg('❌ Erro ao entrar. Tente novamente.', 'err');
+  }
+};
+
+window.copiarCodigo = function() {
+  const code = document.getElementById('famCodigoVal').textContent;
+  navigator.clipboard?.writeText(code).then(() => {
+    toast('📋 Código copiado: ' + code);
+  }).catch(() => {
+    toast('Código: ' + code);
+  });
+};
+
+window.entrarApp = function() {
+  document.getElementById('familiaScreen').classList.remove('show');
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('syncBar').style.display = 'flex';
+  if(familyId) subscribeData(familyId);
+  updUserBadge(currentUser);
+  if(typeof updHdr === 'function') updHdr();
+};
+
+function setFamMsg(msg, type) {
+  const el = document.getElementById('famMsg');
+  if(el) { el.textContent = msg; el.className = 'fam-msg ' + type; }
+}
 
 // ── PATCH: qR e saveDet para salvar no Firestore ─────────────────
 const _origQR = window.qR;
@@ -1987,7 +2267,8 @@ window.saveDet = async function() {
       if(!r) return;
       setSyncing(true);
       const col = mod===1 ? 'regs1' : 'regs2';
-      await setDoc(doc(db,'users',currentUser.uid,col,String(r.id)), r);
+      const bpath = familyId ? ['familias',familyId] : ['users',currentUser.uid];
+      await setDoc(doc(db, bpath[0], bpath[1], col, String(r.id)), r);
     } catch(e) { console.error(e); }
   }, 100);
 };
@@ -2000,7 +2281,9 @@ window.dR = async function(id, mod) {
   try {
     setSyncing(true);
     const col = mod===1 ? 'regs1' : 'regs2';
-    await deleteDoc(doc(db,'users',currentUser.uid,col,String(id)));
+    const base3 = familyId ? ('familias/'+familyId) : ('users/'+currentUser.uid);
+    const [b3c,b3d] = base3.split('/');
+    await deleteDoc(doc(db, b3c, b3d, col, String(id)));
   } catch(e) { console.error(e); }
 };
 
